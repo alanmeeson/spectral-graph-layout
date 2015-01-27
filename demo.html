@@ -1,0 +1,153 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!-- Copyright (c) 2014-2015 Alan Meeson
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE. -->
+<head>
+    <meta charset="utf-8" />
+    <title>Spectral graph layout demo</title>
+	<script type="text/javascript" src="spectralDrawing.js"></script>
+	<script type="text/javascript">
+		window.onload = function() {
+			main();
+		};
+   
+        function main() {
+			num_nodes = 9;
+            var g = new Array(num_nodes);
+            g[0] = [ 0, 1, 0, 0, 0, 0, 0, 0, 0]; //WidgetGroup
+            g[1] = [ 1, 0, 1, 0, 0, 0, 0, 0, 0]; //BoardWidget
+            g[2] = [ 0, 1, 0, 1, 1, 0, 1, 0, 1]; //BoardScreen
+            g[3] = [ 0, 0, 1, 0, 0, 1, 0, 1, 0]; //ChessGame
+            g[4] = [ 0, 0, 1, 0, 0, 0, 0, 0, 0]; //GameListener
+			g[5] = [ 0, 0, 0, 1, 0, 0, 1, 0, 0]; //LocalGamecontroller
+			g[6] = [ 0, 0, 1, 0, 0, 1, 0, 0, 0]; //ChessGameController
+			g[7] = [ 0, 0, 0, 1, 0, 0, 0, 0, 0]; //Game
+			g[8] = [ 0, 0, 1, 0, 0, 0, 0, 0, 0]; //Screen
+
+			//num_nodes = 5;
+            //var g = new Array(5);
+            //g[0] = [0,1,0,0,0];
+            //g[1] = [1,0,1,1,0];
+            //g[2] = [0,1,0,0,0];
+            //g[3] = [0,1,0,0,1];
+            //g[4] = [0,0,0,1,0];
+			
+			num_dims = 2;
+			
+            var l = spectralDrawing(g, num_dims); //eigenvectors x num_nodes
+			var coords = new Array(num_nodes);
+            var scale = 500;
+			
+            for (var i = 0; i < num_nodes; i++){//for each node
+				coords[i] = new Array(num_dims);
+			
+                for (var j = 0; j < num_dims; j++) {
+			        //coords[i][j] = ((l[j+1][i]+1)/2) * scale;
+					coords[i][j] = ((l[j+1][i]+1)/2) * scale;
+                }
+            }
+			printMat(g, document.getElementById('connection'));
+			printMat(coords, document.getElementById('coordinates'));
+            printGraph(g, coords, 10, document.getElementById('graph'));
+        }
+		
+		function printGraph(graph, coords, rad, node) {
+			var svgimg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			svgimg.setAttribute('version', '1.1');
+			svgimg.setAttribute('viewbox', '0 0 500 500');
+			svgimg.setAttribute('width', '500px');
+			svgimg.setAttribute('height', '500px');
+			//'<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="500" height="500">';
+			
+            for (i = 0; i < coords.length; i++) {
+				var circlenode = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+				circlenode.setAttribute('cx', coords[i][0]);
+				circlenode.setAttribute('cy', coords[i][1]);
+				circlenode.setAttribute('r', rad);
+				circlenode.setAttribute('stroke', 'black');
+				circlenode.setAttribute('stroke-width', '2');
+				circlenode.setAttribute('fill', 'red');
+                				
+				svgimg.appendChild(circlenode);
+            }
+
+            for (i = 0; i < graph.length; i++) {
+                for (j = i; j < graph[i].length; j++) {
+                    if (graph[i][j] > 0) {
+						var linenode = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+						linenode.setAttribute('x1', coords[i][0]);
+						linenode.setAttribute('y1', coords[i][1]);
+						linenode.setAttribute('x2', coords[j][0]);
+						linenode.setAttribute('y2', coords[j][1]);
+						linenode.setAttribute('style', 'stroke:rgb(255,0,0);stroke-width:2');
+						
+						svgimg.appendChild(linenode);
+                    }
+                }
+            }
+            
+			node.appendChild(svgimg);
+        }
+
+		function printMat(matrix, node) {
+			var mat = document.createElement("table");
+			//mat.width='100%';
+            for (i = 0; i < matrix.length;i++) {
+				var row = mat.insertRow(i);
+                
+                for (j=0; j<matrix[i].length; j++) {
+					var cell = row.insertCell(j);
+					var text = document.createTextNode(matrix[i][j].toString());
+					cell.appendChild(text);
+                }
+            }
+			node.appendChild(mat);
+        }		
+	</script>
+</head>
+<body>
+<h1>Demo of Spectral graph layout</h1>
+<p>This page provides a demo of a javascript implementation of a spectral graph layout algorithm based on those described Drawing graphs by eigenvectors: Theory and practice by Yehuda Koren, (2005).</p>
+<p>The idea behind this layout algorithm is to closely group nodes which have a higher degree of interconnectedness, while spreading un-connected nodes further apart.  This is achieved using an algorithm similar to spectral clustering, which I implemented using a power iteration method to perform the eigen decomposition.</p>
+<p>The example of this provided below shows how a connection matrix can be converted into a set of coordinates for plotting, and also highlights the limitation of this technique.</p>
+
+<table border="1">
+  <tr>
+    <td valign="top" width="30%">
+	  <h2>Connectedness</h2>
+	  <p>The matrix to the right shows the connectedness of the nodes. Each row represents a single node, with the column values representing what it is connected to. A non-zero number indicates a connection.</p></td>
+    <td id="connection"></td>
+  </tr>
+  <tr>
+    <td valign="top" >
+	<h2>Coordinates</h2>
+	<p>This matrix shows the first two principal components identified by the spectral layout algorithm. These are used as coordinates. You may notice that the coordinates for nodes 5 and 9 are almost the same; this is because they have the same connectedness pattern.  This is the key weakness of the algorithm.</p></td>
+    <td id="coordinates"></td>
+  </tr>
+  <tr>
+    <td valign="top" >
+	<h2>Graph</h2>
+	<p>The graph to the right shows the nodes plotted as per their identified coordinates.  Nodes 5 and 9 are overlapping. To avoid this, a post processing step which would ensure a minimum separation between nodes could be applied.</p></td>
+    <td id="graph"></td>
+  </tr>
+</table>
+
+<p>Created by Alan Meeson, 2014-2015</p>
+</body>
+</html>
