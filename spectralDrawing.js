@@ -143,6 +143,30 @@ function rand(n) {
 	return arr;
 }
 
+function add(a, b) {
+	var c = new Array(a.length);
+	for (var i = 0; i < a.length; i++) {
+		c[i] = new Array(a[i].length);
+		for (var j = 0; j < a[i].length; j++) c[i][j] = a[i][j] + b[i][j];
+	}
+	return c;
+}
+
+function symmetricRandMatrix(n, ulim) {
+	var mat = new Array(n);
+	for (var i = 0; i < n; i++) {
+		mat[i] = new Array(n);
+		mat[i][i] = 0;
+	}
+	for (var i = 0; i < n; i++) {
+		for (var j = i + 1; j < n; j++) {
+			mat[i][j] = ulim * Math.random();
+			mat[j][i] = mat[i][j];
+		}
+	}
+	return mat;
+}
+
 function zeros(n) {
 	//create a vector filled with zeros
 	var arr = new Array(n);
