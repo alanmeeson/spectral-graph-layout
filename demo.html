@@ -40,14 +40,6 @@ THE SOFTWARE. -->
 			g[7] = [ 0, 0, 0, 1, 0, 0, 0, 0, 0]; //Game
 			g[8] = [ 0, 0, 1, 0, 0, 0, 0, 0, 0]; //Screen
 
-			//num_nodes = 5;
-            //var g = new Array(5);
-            //g[0] = [0,1,0,0,0];
-            //g[1] = [1,0,1,1,0];
-            //g[2] = [0,1,0,0,0];
-            //g[3] = [0,1,0,0,1];
-            //g[4] = [0,0,0,1,0];
-			
 			num_dims = 2;
 			
             var l = spectralDrawing(g, num_dims); //eigenvectors x num_nodes
@@ -143,7 +135,7 @@ THE SOFTWARE. -->
   <tr>
     <td valign="top" >
 	<h2>Graph</h2>
-	<p>The graph to the right shows the nodes plotted as per their identified coordinates.  Nodes 5 and 9 are overlapping. To avoid this, a post processing step which would ensure a minimum separation between nodes could be applied.</p></td>
+	<p>The graph to the right shows the nodes plotted as per their identified coordinates.  Nodes 5 and 9 are overlapping. It may be possible to use a fudge factor to avoid this, however a post processing step which would ensure a minimum separation between nodes could be applied and may be preferable.</p></td>
     <td id="graph"></td>
   </tr>
 </table>
